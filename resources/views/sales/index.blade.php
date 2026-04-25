@@ -8,21 +8,6 @@
     </a>
 </div>
 
-<form method="GET" action="{{ route('sales.index') }}" class="mb-3">
-    <div class="input-group" style="max-width:350px">
-        <input type="text" name="search" class="form-control"
-               placeholder="Search customer name..." value="{{ request('search') }}">
-        <button class="btn btn-outline-secondary" type="submit">
-            <i class="fa fa-search"></i>
-        </button>
-        @if(request('search'))
-        <a href="{{ route('sales.index') }}" class="btn btn-outline-danger">
-            <i class="fa fa-x"></i>
-        </a>
-        @endif
-    </div>
-</form>
-
 <div class="card border-0 shadow-sm">
     <div class="card-body p-0">
         <table class="table table-hover mb-0">
@@ -31,10 +16,10 @@
                     <th>#</th>
                     <th>Sale ID</th>
                     <th>Customer</th>
-                    <th>Date</th>
-                    <th>Total</th>
+                    <th>Employee</th>
+                    <th>Sales Date</th>
+                    <th>Total Amount</th>
                     <th>Status</th>
-                    <th>Payment</th>
                     <th class="text-end">Actions</th>
                 </tr>
             </thead>
@@ -44,7 +29,8 @@
                     <td>{{ $loop->iteration }}</td>
                     <td><code>SALE-{{ str_pad($sale->id, 3, '0', STR_PAD_LEFT) }}</code></td>
                     <td>{{ $sale->customer->full_name ?? '—' }}</td>
-                    <td>{{ $sale->sale_date->format('M d, Y') }}</td>
+                    <td>{{ $sale->employee->first_name ?? '—' }} {{ $sale->employee->last_name ?? '' }}</td>
+                    <td>{{ $sale->sales_date->format('M d, Y') }}</td>
                     <td class="fw-bold">₱{{ number_format($sale->total_amount, 2) }}</td>
                     <td>
                         @if($sale->status === 'completed')
@@ -53,15 +39,6 @@
                             <span class="badge bg-warning text-dark">Pending</span>
                         @else
                             <span class="badge bg-danger">Cancelled</span>
-                        @endif
-                    </td>
-                    <td>
-                        @if($sale->payment_status === 'paid')
-                            <span class="badge bg-success">Paid</span>
-                        @elseif($sale->payment_status === 'partial')
-                            <span class="badge bg-info">Partial</span>
-                        @else
-                            <span class="badge bg-secondary">Unpaid</span>
                         @endif
                     </td>
                     <td class="text-end">

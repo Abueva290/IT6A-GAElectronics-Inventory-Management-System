@@ -16,7 +16,7 @@
                     <th>Product</th>
                     <th>Current Stock</th>
                     <th>Minimum Stock</th>
-                    <th>Status</th>
+                    <th>Updated At</th>
                     <th class="text-end">Actions</th>
                 </tr>
             </thead>
@@ -27,15 +27,7 @@
                     <td>{{ $inventory->product->product_name ?? '—' }}</td>
                     <td>{{ $inventory->current_stock }}</td>
                     <td>{{ $inventory->minimum_stock }}</td>
-                    <td>
-                        @if($inventory->stock_status === 'IN STOCK')
-                            <span class="badge bg-success">In Stock</span>
-                        @elseif($inventory->stock_status === 'LOW STOCK')
-                            <span class="badge bg-warning text-dark">Low Stock</span>
-                        @else
-                            <span class="badge bg-danger">Out of Stock</span>
-                        @endif
-                    </td>
+                    <td>{{ $inventory->updated_at->format('Y-m-d H:i') }}</td>
                     <td class="text-end">
                         <a href="{{ route('inventory.edit', $inventory) }}" class="btn btn-sm btn-outline-primary me-1">
                             <i class="fa fa-pen"></i> Edit

@@ -37,24 +37,18 @@
                         </select>
                         @error('category_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <label class="form-label fw-semibold">Unit Price <span class="text-danger">*</span></label>
-                        <input type="number" name="unit_price" step="0.01" min="0"
-                               class="form-control @error('unit_price') is-invalid @enderror"
-                               value="{{ old('unit_price') }}" required>
-                        @error('unit_price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Supplier <span class="text-danger">*</span></label>
+                        <select name="supplier_id" class="form-select @error('supplier_id') is-invalid @enderror" required>
+                            <option value="">— Select Supplier —</option>
+                            @foreach($suppliers as $supplier)
+                            <option value="{{ $supplier->id }}" @selected(old('supplier_id') == $supplier->id)>
+                                {{ $supplier->supplier_name }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('supplier_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <label class="form-label fw-semibold">Stock <span class="text-danger">*</span></label>
-                        <input type="number" name="stock" min="0"
-                               class="form-control @error('stock') is-invalid @enderror"
-                               value="{{ old('stock', 0) }}" required>
-                        @error('stock')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Description</label>
-                    <textarea name="description" class="form-control" rows="2">{{ old('description') }}</textarea>
                 </div>
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-primary">

@@ -16,12 +16,12 @@ class ReportController extends Controller
         $lowStock         = Inventory::with('product')
                             ->whereColumn('current_stock', '<=', 'minimum_stock')
                             ->get();
-        $monthlySales     = Sale::selectRaw('MONTH(sale_date) as month, YEAR(sale_date) as year, SUM(total_amount) as total, COUNT(*) as count')
-                            ->groupBy('year', 'month')
-                            ->orderBy('year', 'desc')
-                            ->orderBy('month', 'desc')
-                            ->take(6)
-                            ->get();
+        $monthlySales = Sale::selectRaw('MONTH(sales_date) as month, YEAR(sales_date) as year, SUM(total_amount) as total, COUNT(*) as count')
+                    ->groupBy('year', 'month')
+                    ->orderBy('year', 'desc')
+                    ->orderBy('month', 'desc')
+                    ->take(6)
+                    ->get();
 
         return view('reports.index', compact(
             'totalRevenue', 'totalSales', 'totalProducts',

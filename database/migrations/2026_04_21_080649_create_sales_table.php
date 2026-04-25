@@ -8,11 +8,10 @@ return new class extends Migration {
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
-            $table->decimal('total_amount', 12, 2)->default(0);
+            $table->foreignId('employee_id')->constrained('employees')->onDelete('cascade');
+            $table->dateTime('sales_date')->useCurrent();
+            $table->decimal('total_amount', 12, 2)->nullable();
             $table->enum('status', ['pending', 'completed', 'cancelled'])->default('pending');
-            $table->enum('payment_method', ['cash', 'gcash', 'bank_transfer', 'other'])->default('cash');
-            $table->enum('payment_status', ['paid', 'partial', 'unpaid'])->default('unpaid');
-            $table->date('sale_date');
             $table->timestamps();
         });
     }

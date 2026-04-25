@@ -66,7 +66,7 @@
             <i class="fa fa-gauge-high"></i> Dashboard
         </a>
 
-        <div class="nav-section">Catalog</div>
+        <div class="nav-section"></div>
         <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.*') ? 'active' : '' }}">
             <i class="fa fa-tags"></i> Categories
         </a>
@@ -77,17 +77,23 @@
             <i class="fa fa-warehouse"></i> Inventory
         </a>
 
-        <div class="nav-section">Partners</div>
+        <div class="nav-section"></div>
         <a href="{{ route('suppliers.index') }}" class="{{ request()->routeIs('suppliers.*') ? 'active' : '' }}">
             <i class="fa fa-truck"></i> Suppliers
         </a>
         <a href="{{ route('customers.index') }}" class="{{ request()->routeIs('customers.*') ? 'active' : '' }}">
             <i class="fa fa-users"></i> Customers
         </a>
+        <a href="{{ route('employees.index') }}" class="{{ request()->routeIs('employees.*') ? 'active' : '' }}">
+            <i class="fa fa-user-tie"></i> Employees
+        </a>
 
-        <div class="nav-section">Transactions</div>
+        <div class="nav-section"></div>
         <a href="{{ route('sales.index') }}" class="{{ request()->routeIs('sales.*') ? 'active' : '' }}">
             <i class="fa fa-cart-shopping"></i> Sales
+        </a>
+        <a href="{{ route('payments.index') }}" class="{{ request()->routeIs('payments.*') ? 'active' : '' }}">
+            <i class="fa fa-credit-card"></i> Payments
         </a>
         <a href="{{ route('reports.index') }}" class="{{ request()->routeIs('reports.*') ? 'active' : '' }}">
             <i class="fa fa-chart-bar"></i> Reports

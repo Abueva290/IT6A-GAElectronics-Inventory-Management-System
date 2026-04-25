@@ -5,9 +5,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class SaleItem extends Model {
     use HasFactory;
-    protected $fillable = ['sale_id', 'product_id', 'quantity', 'unit_price', 'subtotal'];
+    protected $table = 'sales_details';
+    protected $fillable = ['sales_id', 'product_id', 'quantity', 'unit_price', 'subtotal'];
+
     public function sale() {
-        return $this->belongsTo(Sale::class);
+        return $this->belongsTo(Sale::class, 'sales_id');
     }
     public function product() {
         return $this->belongsTo(Product::class);

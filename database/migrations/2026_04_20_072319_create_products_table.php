@@ -7,12 +7,10 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
-            $table->string('product_name');
             $table->string('model_number')->nullable();
-            $table->text('description')->nullable();
-            $table->decimal('unit_price', 10, 2)->default(0);
-            $table->integer('stock')->default(0);
+            $table->string('product_name');
             $table->timestamps();
         });
     }

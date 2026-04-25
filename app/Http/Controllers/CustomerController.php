@@ -24,12 +24,12 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'first_name'   => 'required|string|max:255',
+            'last_name'    => 'required|string|max:255',
             'contact_info' => 'nullable|string|max:255',
-            'address' => 'nullable|string',
+            'address'      => 'nullable|string',
         ]);
-        Customer::create($request->all());
+        Customer::create($request->only(['first_name', 'last_name', 'contact_info', 'address']));
         return redirect()->route('customers.index')->with('success', 'Customer created successfully!');
     }
 
@@ -41,12 +41,12 @@ class CustomerController extends Controller
     public function update(Request $request, Customer $customer)
     {
         $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'first_name'   => 'required|string|max:255',
+            'last_name'    => 'required|string|max:255',
             'contact_info' => 'nullable|string|max:255',
-            'address' => 'nullable|string',
+            'address'      => 'nullable|string',
         ]);
-        $customer->update($request->all());
+        $customer->update($request->only(['first_name', 'last_name', 'contact_info', 'address']));
         return redirect()->route('customers.index')->with('success', 'Customer updated successfully!');
     }
 

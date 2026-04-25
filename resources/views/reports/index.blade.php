@@ -110,10 +110,9 @@
                 <tr>
                     <th>Sale ID</th>
                     <th>Customer</th>
-                    <th>Date</th>
-                    <th>Total</th>
+                    <th>Sales Date</th>
+                    <th>Total Amount</th>
                     <th>Status</th>
-                    <th>Payment</th>
                 </tr>
             </thead>
             <tbody>
@@ -121,21 +120,16 @@
                 <tr>
                     <td><a href="{{ route('sales.show', $sale) }}">SALE-{{ str_pad($sale->id, 3, '0', STR_PAD_LEFT) }}</a></td>
                     <td>{{ $sale->customer->full_name ?? '—' }}</td>
-                    <td>{{ $sale->sale_date->format('M d, Y') }}</td>
+                    <td>{{ $sale->sales_date->format('M d, Y') }}</td>
                     <td class="fw-bold">₱{{ number_format($sale->total_amount, 2) }}</td>
                     <td>
                         @if($sale->status === 'completed') <span class="badge bg-success">Completed</span>
                         @elseif($sale->status === 'pending') <span class="badge bg-warning text-dark">Pending</span>
                         @else <span class="badge bg-danger">Cancelled</span> @endif
                     </td>
-                    <td>
-                        @if($sale->payment_status === 'paid') <span class="badge bg-success">Paid</span>
-                        @elseif($sale->payment_status === 'partial') <span class="badge bg-info">Partial</span>
-                        @else <span class="badge bg-secondary">Unpaid</span> @endif
-                    </td>
                 </tr>
                 @empty
-                <tr><td colspan="6" class="text-center text-muted py-4">No sales yet.</td></tr>
+                <tr><td colspan="5" class="text-center text-muted py-4">No sales yet.</td></tr>
                 @endforelse
             </tbody>
         </table>

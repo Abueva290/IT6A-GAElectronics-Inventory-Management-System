@@ -25,14 +25,13 @@ class InventoryController extends Controller
             'current_stock' => 'required|integer|min:0',
             'minimum_stock' => 'required|integer|min:0',
         ]);
-        Inventory::create($request->all());
+        Inventory::create($request->only(['product_id', 'current_stock', 'minimum_stock']));
         return redirect()->route('inventory.index')->with('success', 'Inventory created successfully!');
     }
 
     public function edit(Inventory $inventory)
     {
-        $products = Product::all();
-        return view('inventory.edit', compact('inventory', 'products'));
+        return view('inventory.edit', compact('inventory'));
     }
 
     public function update(Request $request, Inventory $inventory)
@@ -41,7 +40,7 @@ class InventoryController extends Controller
             'current_stock' => 'required|integer|min:0',
             'minimum_stock' => 'required|integer|min:0',
         ]);
-        $inventory->update($request->only('current_stock', 'minimum_stock'));
+        $inventory->update($request->only(['current_stock', 'minimum_stock']));
         return redirect()->route('inventory.index')->with('success', 'Inventory updated successfully!');
     }
 

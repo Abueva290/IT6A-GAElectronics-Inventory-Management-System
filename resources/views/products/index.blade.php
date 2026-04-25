@@ -32,8 +32,7 @@
                     <th>Product Name</th>
                     <th>Category</th>
                     <th>Model</th>
-                    <th>Price</th>
-                    <th>Stock</th>
+                    <th>Supplier</th>
                     <th class="text-end">Actions</th>
                 </tr>
             </thead>
@@ -44,8 +43,7 @@
                     <td>{{ $product->product_name }}</td>
                     <td>{{ $product->category->category_name ?? '—' }}</td>
                     <td>{{ $product->model_number ?? '—' }}</td>
-                    <td>₱{{ number_format($product->unit_price, 2) }}</td>
-                    <td>{{ $product->stock }}</td>
+                    <td>{{ $product->supplier->supplier_name ?? '—' }}</td>
                     <td class="text-end">
                         <a href="{{ route('products.show', $product) }}" class="btn btn-sm btn-outline-info me-1">
                             <i class="fa fa-eye"></i>
@@ -65,7 +63,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="text-center text-muted py-4">No products found.</td>
+                    <td colspan="6" class="text-center text-muted py-4">No products found.</td>
                 </tr>
                 @endforelse
             </tbody>

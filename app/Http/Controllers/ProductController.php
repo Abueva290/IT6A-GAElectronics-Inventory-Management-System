@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -9,30 +10,30 @@ class ProductController extends Controller
     public function index()
     {
         $search = request('search');
-        $products = Product::with('category')->when($search, fn($q) =>
-            $q->where('product_name', 'like', "%{$search}%")
-              ->orWhere('model_number', 'like', "%{$search}%")
-        )->latest()->paginate(10);
+        $products = Product::with(['category', 'supplier'])
+            ->when($search, fn($q) =>
+                $q->where('product_name', 'like', "%{$search}%")
+                  ->orWhere('model_number', 'like', "%{$search}%")
+            )->latest()->paginate(10);
         return view('products.index', compact('products'));
     }
 
     public function create()
     {
         $categories = Category::all();
-        return view('products.create', compact('categories'));
+        $suppliers  = Supplier::all();
+        return view('products.create', compact('categories', 'suppliers'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'category_id' => 'required|exists:categories,id',
+            'supplier_id'  => 'required|exists:suppliers,id',
+            'category_id'  => 'required|exists:categories,id',
             'product_name' => 'required|string|max:255',
             'model_number' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'unit_price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
         ]);
-        Product::create($request->all());
+        Product::create($request->only(['supplier_id', 'category_id', 'product_name', 'model_number']));
         return redirect()->route('products.index')->with('success', 'Product created successfully!');
     }
 
@@ -44,20 +45,19 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::all();
-        return view('products.edit', compact('product', 'categories'));
+        $suppliers  = Supplier::all();
+        return view('products.edit', compact('product', 'categories', 'suppliers'));
     }
 
     public function update(Request $request, Product $product)
     {
         $request->validate([
-            'category_id' => 'required|exists:categories,id',
+            'supplier_id'  => 'required|exists:suppliers,id',
+            'category_id'  => 'required|exists:categories,id',
             'product_name' => 'required|string|max:255',
             'model_number' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'unit_price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
         ]);
-        $product->update($request->all());
+        $product->update($request->only(['supplier_id', 'category_id', 'product_name', 'model_number']));
         return redirect()->route('products.index')->with('success', 'Product updated successfully!');
     }
 

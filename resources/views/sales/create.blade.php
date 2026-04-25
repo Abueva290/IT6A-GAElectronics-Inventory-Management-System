@@ -24,35 +24,30 @@
                         @error('customer_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">Sale Date <span class="text-danger">*</span></label>
-                        <input type="date" name="sale_date" class="form-control"
-                               value="{{ old('sale_date', now()->format('Y-m-d')) }}" required>
+                        <label class="form-label fw-semibold">Employee <span class="text-danger">*</span></label>
+                        <select name="employee_id" class="form-select @error('employee_id') is-invalid @enderror" required>
+                            <option value="">— Select Employee —</option>
+                            @foreach($employees as $e)
+                            <option value="{{ $e->id }}" @selected(old('employee_id') == $e->id)>
+                                {{ $e->first_name }} {{ $e->last_name }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('employee_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Sales Date <span class="text-danger">*</span></label>
+                        <input type="date" name="sales_date" class="form-control"
+                               value="{{ old('sales_date', now()->format('Y-m-d')) }}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
                         <label class="form-label fw-semibold">Status</label>
                         <select name="status" class="form-select">
                             <option value="pending">Pending</option>
                             <option value="completed">Completed</option>
                             <option value="cancelled">Cancelled</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label fw-semibold">Payment Method</label>
-                        <select name="payment_method" class="form-select">
-                            <option value="cash">Cash</option>
-                            <option value="gcash">GCash</option>
-                            <option value="bank_transfer">Bank Transfer</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label fw-semibold">Payment Status</label>
-                        <select name="payment_status" class="form-select">
-                            <option value="unpaid">Unpaid</option>
-                            <option value="partial">Partial</option>
-                            <option value="paid">Paid</option>
                         </select>
                     </div>
                 </div>
@@ -66,7 +61,7 @@
                             <select name="items[0][product_id]" class="form-select product-select" required>
                                 <option value="">— Select Product —</option>
                                 @foreach($products as $p)
-                                <option value="{{ $p->id }}" data-price="{{ $p->unit_price }}">
+                                <option value="{{ $p->id }}">
                                     {{ $p->product_name }}
                                 </option>
                                 @endforeach
@@ -121,11 +116,6 @@ function calcTotal() {
     document.getElementById('grandTotal').textContent = grand.toFixed(2);
 }
 document.addEventListener('change', function(e) {
-    if (e.target.classList.contains('product-select')) {
-        const price = e.target.selectedOptions[0]?.dataset.price || 0;
-        e.target.closest('.item-row').querySelector('.price-input').value = parseFloat(price).toFixed(2);
-        calcTotal();
-    }
     if (e.target.classList.contains('qty-input') || e.target.classList.contains('price-input')) {
         calcTotal();
     }
@@ -138,12 +128,6 @@ document.getElementById('addItem').addEventListener('click', function() {
     });
     document.getElementById('itemsContainer').appendChild(tpl);
     index++;
-});
-document.addEventListener('click', function(e) {
-    if (e.target.closest('.remove-row')) {
-        const rows = document.querySelectorAll('.item-row');
-        if (rows.length > 1) { e.target.closest('.item-row').remove(); calcTotal(); }
-    }
 });
 </script>
 @endpush

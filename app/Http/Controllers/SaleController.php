@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Customer;
+use App\Models\Employee;
 use App\Models\Product;
 use App\Models\Inventory;
 use Illuminate\Http\Request;
@@ -12,67 +13,46 @@ class SaleController extends Controller
 {
     public function index()
     {
-        $search = request('search');
-        $sales = Sale::with('customer')->when($search, fn($q) =>
-            $q->whereHas('customer', fn($c) =>
-                $c->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-            )
-        )->latest()->paginate(10);
+        $sales = Sale::with('customer', 'employee')->latest()->paginate(10);
         return view('sales.index', compact('sales'));
     }
 
     public function create()
     {
         $customers = Customer::orderBy('first_name')->get();
+        $employees = Employee::orderBy('first_name')->get();
         $products  = Product::all();
-        return view('sales.create', compact('customers', 'products'));
+        return view('sales.create', compact('customers', 'employees', 'products'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'customer_id'            => 'required|exists:customers,id',
-            'sale_date'              => 'required|date',
-            'status'                 => 'required|in:pending,completed,cancelled',
-            'payment_method'         => 'required|in:cash,gcash,bank_transfer,other',
-            'payment_status'         => 'required|in:paid,partial,unpaid',
-            'items'                  => 'required|array|min:1',
-            'items.*.product_id'     => 'required|exists:products,id',
-            'items.*.quantity'       => 'required|integer|min:1',
-            'items.*.unit_price'     => 'required|numeric|min:0',
+            'customer_id'        => 'required|exists:customers,id',
+            'employee_id'        => 'required|exists:employees,id',
+            'sales_date'         => 'required|date',
+            'status'             => 'required|in:pending,completed,cancelled',
+            'items'              => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity'   => 'required|integer|min:1',
+            'items.*.unit_price' => 'required|numeric|min:0',
         ]);
-
-        // Check stock availability BEFORE creating the sale
-        foreach ($request->items as $item) {
-            $inventory = Inventory::where('product_id', $item['product_id'])->first();
-            $product   = Product::find($item['product_id']);
-            if ($inventory && $inventory->current_stock < $item['quantity']) {
-                return back()
-                    ->withInput()
-                    ->withErrors([
-                        'items' => 'Not enough stock for "' . $product->product_name . '". 
-                                   Available: ' . $inventory->current_stock . ' units.'
-                    ]);
-            }
-        }
 
         DB::transaction(function () use ($request) {
             $total = 0;
             $sale = Sale::create([
-                'customer_id'    => $request->customer_id,
-                'sale_date'      => $request->sale_date,
-                'status'         => $request->status,
-                'payment_method' => $request->payment_method,
-                'payment_status' => $request->payment_status,
-                'total_amount'   => 0,
+                'customer_id'  => $request->customer_id,
+                'employee_id'  => $request->employee_id,
+                'sales_date'   => $request->sales_date,
+                'status'       => $request->status,
+                'total_amount' => 0,
             ]);
 
             foreach ($request->items as $item) {
                 $subtotal = $item['quantity'] * $item['unit_price'];
                 $total   += $subtotal;
                 SaleItem::create([
-                    'sale_id'    => $sale->id,
+                    'sales_id'   => $sale->id,
                     'product_id' => $item['product_id'],
                     'quantity'   => $item['quantity'],
                     'unit_price' => $item['unit_price'],
@@ -91,7 +71,7 @@ class SaleController extends Controller
 
     public function show(Sale $sale)
     {
-        $sale->load('customer', 'saleItems.product');
+        $sale->load('customer', 'employee', 'saleItems.product', 'payments');
         return view('sales.show', compact('sale'));
     }
 
@@ -103,10 +83,9 @@ class SaleController extends Controller
     public function update(Request $request, Sale $sale)
     {
         $request->validate([
-            'status'         => 'required|in:pending,completed,cancelled',
-            'payment_status' => 'required|in:paid,partial,unpaid',
+            'status' => 'required|in:pending,completed,cancelled',
         ]);
-        $sale->update($request->only('status', 'payment_status'));
+        $sale->update($request->only('status'));
         return redirect()->route('sales.index')->with('success', 'Sale updated successfully!');
     }
 
