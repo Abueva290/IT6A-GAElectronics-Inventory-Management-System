@@ -89,6 +89,9 @@
         </a>
 
         <div class="nav-section"></div>
+        <a href="{{ route('stockin.index') }}" class="{{ request()->routeIs('stockin.*') ? 'active' : '' }}">
+            <i class="fa fa-boxes-stacking"></i> Stock In
+        </a>
         <a href="{{ route('sales.index') }}" class="{{ request()->routeIs('sales.*') ? 'active' : '' }}">
             <i class="fa fa-cart-shopping"></i> Sales
         </a>
@@ -98,6 +101,7 @@
         <a href="{{ route('reports.index') }}" class="{{ request()->routeIs('reports.*') ? 'active' : '' }}">
             <i class="fa fa-chart-bar"></i> Reports
         </a>
+        
     </div>
 
     <div style="position:absolute; bottom:0; width:100%; border-top:1px solid #4a5568; padding:15px">

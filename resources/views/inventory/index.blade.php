@@ -7,7 +7,52 @@
         <i class="fa fa-plus me-1"></i> Add Inventory
     </a>
 </div>
+
+{{-- ✅ vw_product_stock_status VIEW --}}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white fw-bold">
+        <i class="fa fa-eye text-primary me-2"></i>Stock Status View
+        <span class="badge bg-primary ms-2">vw_product_stock_status</span>
+    </div>
+    <div class="card-body p-0">
+        <table class="table mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Product</th>
+                    <th>Current Stock</th>
+                    <th>Minimum Stock</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($vwStockStatus as $item)
+                <tr>
+                    <td>{{ $item->product_name }}</td>
+                    <td>{{ $item->current_stock }}</td>
+                    <td>{{ $item->minimum_stock }}</td>
+                    <td>
+                        @if($item->stock_status === 'OUT OF STOCK')
+                            <span class="badge bg-danger">Out of Stock</span>
+                        @elseif($item->stock_status === 'LOW STOCK')
+                            <span class="badge bg-warning text-dark">Low Stock</span>
+                        @else
+                            <span class="badge bg-success">In Stock</span>
+                        @endif
+                    </td>
+                </tr>
+                @empty
+                <tr><td colspan="4" class="text-center text-muted py-3">No data.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{-- Inventory Table --}}
 <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white fw-bold">
+        <i class="fa fa-warehouse text-primary me-2"></i>Inventory Records
+    </div>
     <div class="card-body p-0">
         <table class="table table-hover mb-0">
             <thead class="table-light">

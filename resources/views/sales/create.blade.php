@@ -10,10 +10,25 @@
         <div class="card-body">
             <form action="{{ route('sales.store') }}" method="POST" id="saleForm">
                 @csrf
+
+                @if ($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong><i class="fa fa-triangle-exclamation me-1"></i> Error:</strong>
+                    <ul class="mb-0 mt-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                @endif
+
+                <input type="hidden" name="status" value="pending">
+
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-semibold">Customer <span class="text-danger">*</span></label>
-                        <select name="customer_id" class="form-select @error('customer_id') is-invalid @enderror" required>
+                        <select name="customer_id" id="customerSelect" class="form-select @error('customer_id') is-invalid @enderror" required>
                             <option value="">— Select Customer —</option>
                             @foreach($customers as $c)
                             <option value="{{ $c->id }}" @selected(old('customer_id') == $c->id)>
@@ -24,36 +39,23 @@
                         @error('customer_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">Employee <span class="text-danger">*</span></label>
-                        <select name="employee_id" class="form-select @error('employee_id') is-invalid @enderror" required>
-                            <option value="">— Select Employee —</option>
-                            @foreach($employees as $e)
-                            <option value="{{ $e->id }}" @selected(old('employee_id') == $e->id)>
-                                {{ $e->first_name }} {{ $e->last_name }}
-                            </option>
-                            @endforeach
-                        </select>
-                        @error('employee_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
                         <label class="form-label fw-semibold">Sales Date <span class="text-danger">*</span></label>
                         <input type="date" name="sales_date" class="form-control"
                                value="{{ old('sales_date', now()->format('Y-m-d')) }}" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-semibold">Status</label>
-                        <select name="status" class="form-select">
-                            <option value="pending">Pending</option>
-                            <option value="completed">Completed</option>
-                            <option value="cancelled">Cancelled</option>
-                        </select>
                     </div>
                 </div>
 
                 <hr>
                 <h6 class="fw-bold mb-3"><i class="fa fa-list me-2"></i>Product Items</h6>
+
+                <script>
+                    const productPrices = {
+                        @foreach($products as $p)
+                            {{ $p->id }}: {{ $p->unit_price ?? 0 }},
+                        @endforeach
+                    };
+                </script>
+
                 <div id="itemsContainer">
                     <div class="row item-row align-items-end mb-2">
                         <div class="col-md-5">
@@ -61,9 +63,7 @@
                             <select name="items[0][product_id]" class="form-select product-select" required>
                                 <option value="">— Select Product —</option>
                                 @foreach($products as $p)
-                                <option value="{{ $p->id }}">
-                                    {{ $p->product_name }}
-                                </option>
+                                <option value="{{ $p->id }}">{{ $p->product_name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -73,7 +73,7 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label fw-semibold">Unit Price (₱)</label>
-                            <input type="number" name="items[0][unit_price]" class="form-control price-input" step="0.01" min="0" required>
+                            <input type="number" name="items[0][unit_price]" class="form-control price-input bg-light" step="0.01" min="0" readonly required>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label fw-semibold">Subtotal</label>
@@ -81,6 +81,7 @@
                         </div>
                     </div>
                 </div>
+
                 <button type="button" id="addItem" class="btn btn-outline-secondary btn-sm mb-3">
                     <i class="fa fa-plus me-1"></i> Add Item
                 </button>
@@ -101,9 +102,25 @@
 </div>
 </div>
 @endsection
+
 @push('scripts')
+{{-- Select2 --}}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
+// Init Select2 for Customer
+$(document).ready(function() {
+    $('#customerSelect').select2({
+        placeholder: '— Search Customer —',
+        allowClear: true,
+        width: '100%'
+    });
+});
+
 let index = 1;
+
 function calcTotal() {
     let grand = 0;
     document.querySelectorAll('.item-row').forEach(row => {
@@ -115,11 +132,19 @@ function calcTotal() {
     });
     document.getElementById('grandTotal').textContent = grand.toFixed(2);
 }
+
 document.addEventListener('change', function(e) {
-    if (e.target.classList.contains('qty-input') || e.target.classList.contains('price-input')) {
+    if (e.target.classList.contains('product-select')) {
+        const productId = e.target.value;
+        const priceInput = e.target.closest('.item-row').querySelector('.price-input');
+        priceInput.value = productId ? (productPrices[productId] || 0).toFixed(2) : '';
+        calcTotal();
+    }
+    if (e.target.classList.contains('qty-input')) {
         calcTotal();
     }
 });
+
 document.getElementById('addItem').addEventListener('click', function() {
     const tpl = document.querySelector('.item-row').cloneNode(true);
     tpl.querySelectorAll('[name]').forEach(el => {

@@ -1,15 +1,21 @@
 <?php
 namespace App\Http\Controllers;
+
 use App\Models\Inventory;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class InventoryController extends Controller
 {
     public function index()
     {
         $inventories = Inventory::with('product')->latest()->paginate(10);
-        return view('inventory.index', compact('inventories'));
+
+        // ✅ VIEW connected to frontend
+        $vwStockStatus = DB::table('vw_product_stock_status')->get();
+
+        return view('inventory.index', compact('inventories', 'vwStockStatus'));
     }
 
     public function create()

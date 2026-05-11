@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers;
+
 use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Customer;
@@ -29,17 +30,39 @@ class SaleController extends Controller
     {
         $request->validate([
             'customer_id'        => 'required|exists:customers,id',
-            'employee_id'        => 'required|exists:employees,id',
+            
             'sales_date'         => 'required|date',
             'status'             => 'required|in:pending,completed,cancelled',
             'items'              => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity'   => 'required|integer|min:1',
             'items.*.unit_price' => 'required|numeric|min:0',
+
         ]);
 
+        //  CHECK STOCK FIRST before saving anything
+        foreach ($request->items as $item) {
+            $inventory = Inventory::where('product_id', $item['product_id'])->first();
+            $product   = Product::find($item['product_id']);
+
+            if (!$inventory) {
+                return back()->withErrors([
+                    'items' => 'No inventory record found for: ' . $product->product_name
+                ])->withInput();
+            }
+
+            if ($inventory->current_stock < $item['quantity']) {
+                return back()->withErrors([
+                    'items' => 'Insufficient stock for: ' . $product->product_name .
+                               '. Available stock: ' . $inventory->current_stock
+                ])->withInput();
+            }
+        }
+
+        //  ALL STOCKS OK — proceed
         DB::transaction(function () use ($request) {
             $total = 0;
+
             $sale = Sale::create([
                 'customer_id'  => $request->customer_id,
                 'employee_id'  => $request->employee_id,
@@ -51,6 +74,7 @@ class SaleController extends Controller
             foreach ($request->items as $item) {
                 $subtotal = $item['quantity'] * $item['unit_price'];
                 $total   += $subtotal;
+
                 SaleItem::create([
                     'sales_id'   => $sale->id,
                     'product_id' => $item['product_id'],
@@ -58,15 +82,17 @@ class SaleController extends Controller
                     'unit_price' => $item['unit_price'],
                     'subtotal'   => $subtotal,
                 ]);
+
+                // Deduct inventory — safe na kay nacheck na sa taas
                 $inventory = Inventory::where('product_id', $item['product_id'])->first();
-                if ($inventory) {
-                    $inventory->decrement('current_stock', $item['quantity']);
-                }
+                $inventory->decrement('current_stock', $item['quantity']);
             }
+
             $sale->update(['total_amount' => $total]);
         });
 
-        return redirect()->route('sales.index')->with('success', 'Sale recorded successfully!');
+        return redirect()->route('sales.index')
+            ->with('success', 'Sale recorded successfully!');
     }
 
     public function show(Sale $sale)
@@ -86,7 +112,8 @@ class SaleController extends Controller
             'status' => 'required|in:pending,completed,cancelled',
         ]);
         $sale->update($request->only('status'));
-        return redirect()->route('sales.index')->with('success', 'Sale updated successfully!');
+        return redirect()->route('sales.index')
+            ->with('success', 'Sale updated successfully!');
     }
 
     public function destroy(Sale $sale)
@@ -100,6 +127,7 @@ class SaleController extends Controller
             }
             $sale->delete();
         });
-        return redirect()->route('sales.index')->with('success', 'Sale deleted and inventory restored!');
+        return redirect()->route('sales.index')
+            ->with('success', 'Sale deleted and inventory restored!');
     }
 }

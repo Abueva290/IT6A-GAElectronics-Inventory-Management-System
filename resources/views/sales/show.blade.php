@@ -4,7 +4,7 @@
 <div class="d-flex justify-content-between mb-4">
     <div>
         <h4 class="fw-bold mb-0">SALE-{{ str_pad($sale->id, 3, '0', STR_PAD_LEFT) }}</h4>
-        <small class="text-muted">{{ $sale->sale_date->format('F d, Y') }}</small>
+        <small class="text-muted">{{ \Carbon\Carbon::parse($sale->sales_date)->format('F d, Y') }}</small>
     </div>
     <a href="{{ route('sales.index') }}" class="btn btn-outline-secondary">
         <i class="fa fa-arrow-left me-1"></i> Back

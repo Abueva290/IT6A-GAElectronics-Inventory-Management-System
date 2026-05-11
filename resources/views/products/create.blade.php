@@ -24,6 +24,13 @@
                                value="{{ old('model_number') }}">
                     </div>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Unit Price (₱) <span class="text-danger">*</span></label>
+                    <input type="number" name="unit_price" step="0.01" min="0"
+                           class="form-control @error('unit_price') is-invalid @enderror"
+                           value="{{ old('unit_price') }}" required>
+                    @error('unit_price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-semibold">Category <span class="text-danger">*</span></label>

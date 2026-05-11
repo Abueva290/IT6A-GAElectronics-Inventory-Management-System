@@ -32,8 +32,10 @@ class ProductController extends Controller
             'category_id'  => 'required|exists:categories,id',
             'product_name' => 'required|string|max:255',
             'model_number' => 'nullable|string|max:255',
+            'unit_price'   => 'required|numeric|min:0',
+
         ]);
-        Product::create($request->only(['supplier_id', 'category_id', 'product_name', 'model_number']));
+        Product::create($request->only(['supplier_id', 'category_id', 'product_name', 'model_number', 'unit_price']));
         return redirect()->route('products.index')->with('success', 'Product created successfully!');
     }
 
@@ -56,8 +58,9 @@ class ProductController extends Controller
             'category_id'  => 'required|exists:categories,id',
             'product_name' => 'required|string|max:255',
             'model_number' => 'nullable|string|max:255',
+             'unit_price'   => 'required|numeric|min:0',
         ]);
-        $product->update($request->only(['supplier_id', 'category_id', 'product_name', 'model_number']));
+       $product->update($request->only(['supplier_id', 'category_id', 'product_name', 'model_number', 'unit_price']));
         return redirect()->route('products.index')->with('success', 'Product updated successfully!');
     }
 

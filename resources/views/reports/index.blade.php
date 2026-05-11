@@ -135,4 +135,81 @@
         </table>
     </div>
 </div>
+
+{{-- ✅ VIEW 1: vw_sales_detailed --}}
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-white fw-bold">
+        <i class="fa fa-eye text-primary me-2"></i>Detailed Sales View
+        <span class="badge bg-primary ms-2">vw_sales_detailed</span>
+    </div>
+    <div class="card-body p-0">
+        <table class="table mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Sale ID</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Subtotal</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($vwSalesDetailed as $row)
+                <tr>
+                    <td>SALE-{{ str_pad($row->sales_id, 3, '0', STR_PAD_LEFT) }}</td>
+                    <td>{{ \Carbon\Carbon::parse($row->sales_date)->format('M d, Y') }}</td>
+                    <td>{{ $row->customer_name }}</td>
+                    <td>{{ $row->product_name }}</td>
+                    <td>{{ $row->quantity }}</td>
+                    <td>₱{{ number_format($row->unit_price, 2) }}</td>
+                    <td>₱{{ number_format($row->subtotal, 2) }}</td>
+                    <td>
+                        @if($row->status === 'completed')
+                            <span class="badge bg-success">Completed</span>
+                        @elseif($row->status === 'pending')
+                            <span class="badge bg-warning text-dark">Pending</span>
+                        @else
+                            <span class="badge bg-danger">Cancelled</span>
+                        @endif
+                    </td>
+                </tr>
+                @empty
+                <tr><td colspan="8" class="text-center text-muted py-4">No data.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{-- ✅ VIEW 2: vw_unsold_products --}}
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-white fw-bold">
+        <i class="fa fa-eye text-warning me-2"></i>Unsold Products View
+        <span class="badge bg-warning text-dark ms-2">vw_unsold_products</span>
+    </div>
+    <div class="card-body p-0">
+        <table class="table mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Product Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($vwUnsoldProducts as $row)
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $row->product_name }}</td>
+                </tr>
+                @empty
+                <tr><td colspan="2" class="text-center text-muted py-4">All products have been sold!</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+
 @endsection

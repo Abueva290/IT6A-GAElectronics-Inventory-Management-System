@@ -9,6 +9,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\StockInController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/', fn() => redirect()->route('dashboard'));
@@ -22,6 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('inventory',  InventoryController::class);
     Route::resource('sales',      SaleController::class);
     Route::resource('payments',   PaymentController::class)->except(['show']);
+    Route::resource('stockin',    StockInController::class)->except(['edit', 'update']);
     Route::get('reports',         [ReportController::class, 'index'])->name('reports.index');
 });
 
